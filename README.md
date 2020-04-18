@@ -1,0 +1,1 @@
+This is the Javascript code for LeetCode questions.
