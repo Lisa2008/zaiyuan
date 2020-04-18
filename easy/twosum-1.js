@@ -11,16 +11,18 @@ Because nums[0] + nums[1] = 2 + 7 = 9,
 return [0, 1].
 */
 
-function twoSum(array, target){
-  let s;
-  for(let i = 0; i < array.length; i++){
-    if(array[i] >= target) continue;
-    s = target - array[i];
-    for(let j = i + 1; j < array.length; j++){
-      if(array[j] === s) return([i,j]);
+var twoSum = function(nums, target) {
+    let s;
+  for(let i = 0; i < nums.length; i++){
+    //if(nums[i] > target) continue;
+    s = target - nums[i];
+    for(let j = i + 1; j < nums.length; j++){
+      if(nums[j] === s) return([i,j]);
     }
   }
-}
+};
 
 
-console.log(twoSum([8,2,56,7], 9))
+console.log(twoSum([8,2,56,7], 9));
+console.log(twoSum([0,4,3,0], 0));
+console.log(twoSum([-1,-2,-3,-4,-5], -8));
