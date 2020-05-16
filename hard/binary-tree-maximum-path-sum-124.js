@@ -28,46 +28,86 @@ Output: 42
 //Wrong approach because of wrong understanding the question
 
 var maxPathSum = function(root) {
-  let maxWeight = {max: -Infinity};
-  
-  let temp = getWeight(root, maxWeight);
+    
+  getWeight(root);
   console.log(root);
-  return maxWeight.max;
- 
+  
+  return findPath(root);
 };
 
-function getWeight(node, maxWeight) {
+function getWeight(node) {
   if(node === null) return 0;
   
   let weight = node.val;
   
-  let testa = [weight];
-  
-  let templeft = 0;
-  let tempright = 0;
-  
-  if(node.left !== null){
-    templeft = getWeight(node.left, maxWeight);
-    testa.push(templeft);
-    testa.push(weight + templeft);               
-  }
-  
-  if(node.right !== null){
-    tempright = getWeight(node.right, maxWeight);
-    testa.push(tempright);
-    testa.push(weight + tempright);               
-  }
-  
-  if(node.left !== null && node.right !== null)
-    testa.push(weight + templeft +tempright);
-  
-  maxWeight.max = Math.max(maxWeight.max, ...testa);
-  
-  weight = weight + templeft + tempright;
+  weight = node.left === null? weight: weight + getWeight(node.left);
+  weight = node.right === null? weight: weight + getWeight(node.right);
   
   node['weight'] = weight;
   
   return weight;
+}
+
+function findPath(node) {
+  if(node.left === null && node.right === null) return node.val;
+  
+  let maxPath;
+  
+  if(node.left === null){
+    if(node.val > node.right.weight) return node.val;
+    if(node.weight > node.right.weight){
+      maxPath = Math.max(node.val, node.val + findSPath(node.right));
+    }
+    else{
+      maxPath = findPath(node.right);
+    }
+  }
+  else if(node.right === null){
+    if(node.val > node.left.weight) return node.val;
+    
+    if(node.weight > node.left.weight || node.val > node.left.weight){
+      maxPath = Math.max(node.val, node.val + findSPath(node.left));
+    }
+    else{
+      maxPath = findPath(node.left);
+    }
+  }
+  else {
+    if(node.val > node.left.wegith && node.val > node.right.weight) return node.val;
+    if(node.weight > node.left.weight && node.weight > node.right.weight) {
+      maxPath = node.val + findSPath(node.left) + findSPath(node.right);
+    }
+    else {
+      maxPath = Math.max(findPath(node.left), findPath(node.right));
+    }
+  }
+  
+  return maxPath;
+}
+
+function findSPath(node) {
+  if(node.left === null && node.right === null) return node.val;
+  
+  if(node.left === null) {
+    if(node.val > node.right.weight) return node.val;
+    if(node.weight > node.right.weight){
+      return node.val + findSPath(node.right);  
+    }
+    else return node.val;
+  }
+  else if(node.right === null){
+    if(node.val > node.left.weight) return node.val;
+    if(node.weight > node.left.weight){
+      return node.val + findSPath(node.left);  
+    }
+    else return node.val;
+  }
+  else{
+    if(node.val > node.left.weight && node.val > node.right.weight) return node.val;
+    if(node.weight > node.left.weight && node.weight > node.right.weight)
+      return node.left.weight > node.right.weight ? (node.val + findSPath(node.left)):(node.val + findSPath(node.right));
+    else return node.val;
+  }
 }
 
 /*var root1 = {val: -10, 
@@ -79,7 +119,7 @@ function getWeight(node, maxWeight) {
                             left: null, right: null},
                      right: {val: 7,
                              left: null, right: null}
-             }};*/
+             }}; //42*/
 
 /*var root1 = {val: 1, 
              left: {val: 2, 
@@ -87,14 +127,14 @@ function getWeight(node, maxWeight) {
                     
              right: {val: 3,
                      left: null, right: null}
-             };*/
+             };  //6*/
 
 /*var root1 = {val: 2, 
              left: {val: -1, 
                     left: null, right: null}, 
                     
              right: null
-             };*/
+             }; //2*/
 
 
 /*var root1 = {val: 1, 
@@ -108,16 +148,16 @@ function getWeight(node, maxWeight) {
                      left: {val: -2,
                             left: null, right: null},
                      right: null
-             }};*/
+             }}; //3*/
 
 /*var root1 = {val: -3, 
              left: null, 
                     
              right: null
-             };*/
+             }; //-3*/
 
 
-var root1 = {val: 5, 
+/*var root1 = {val: 5, 
              left: {val: 4, 
                     left: {val: 11,
                            left: {val: 7 ,left: null , right: null},
@@ -129,5 +169,19 @@ var root1 = {val: 5,
                      right: {val: 4, 
                              left: {val: 1, left: null, right: null}, 
                              right: null}
-             }};
+             }}; //48*/
+
+/*var root1 = {val: -2, 
+             left: null, 
+                    
+             right: {val: -3, left: null, right: null}
+             }; //-2*/
+
+var root1 = {val: 1, 
+             left: {val: -2, left: null, right: null}, 
+                    
+             right: {val: 3, left: null, right: null}
+             }; //-2
+
+
 console.log(maxPathSum(root1));
