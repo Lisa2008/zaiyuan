@@ -20,6 +20,20 @@ Note: Do not use class member/global/static variables to store states. Your seri
 
 */
 
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val) {
+ *     this.val = val;
+ *     this.left = this.right = null;
+ * }
+ */
+
+/**
+ * Encodes a tree to a single string.
+ *
+ * @param {TreeNode} root
+ * @return {string}
+ */
 var serialize = function(root) {
   if(root === null || root === {}) return "";
   
@@ -30,6 +44,7 @@ var serialize = function(root) {
   serial(ra, ret);
   
   return ret.toString();
+  
 };
 
 function serial(ra, a){
@@ -53,36 +68,56 @@ function serial(ra, a){
   if(tempra.length > 0) serial(tempra, a);
 }
 
+
+/**
+ * Decodes your encoded data to tree.
+ *
+ * @param {string} data
+ * @return {TreeNode}
+ */
 var deserialize = function(data) {
   if(data.length === 0) return null;
   let nums = data.split(",");
   
   let tree = {val: parseInt(nums[0]), left: null, right: null};
   nums.shift();
-  rebuildTree(tree, nums);
   
-  if(nums.length > 2){
-    nums = nums.slice(2);
-    rebuildTree(node.left, nums);
-    rebuildTree(node.right, nums);
-  }
-  
-  console.log(node);
-  console.log(nums);
-  
+  rebuildTree([tree], nums)
+  return tree;
 };
 
-function rebuildTree(node, nums){
+function rebuildTree(nodes, nums){
+  let tempa = [];
+  for(let i = 0; i < nodes.length; i++){
+    if(nodes[i] === null) continue;
+    nums = rebuildTree1(nodes[i], nums);
+    if(nums.length <= 0) break;
+    
+    tempa.push(nodes[i].left);
+    tempa.push(nodes[i].right);
+  }
   
-  if(nums[0] !== '') {
+  if(tempa.length > 0) rebuildTree(tempa, nums);
+ 
+}
+
+function rebuildTree1(node, nums){
+   if(nums[0] !== '') {
     node.left = {val: parseInt(nums[0]), left: null, right: null};
   }
   if(nums[1] !== '' ) {
     node.right = {val: parseInt(nums[1]), left: null, right: null};
   }
+  
+  return nums = nums.slice(2);
 }
 
-var root1 = {val: 1, 
+/**
+ * Your functions will be called as such:
+ * deserialize(serialize(root));
+ */
+ 
+ var root1 = {val: 1, 
              left: {val: 2, 
                     left: null, right: null}, 
                     
@@ -103,7 +138,5 @@ var root5 = {val: 5,
                              left: {val: 1, left: null, right: null}, 
                              right: null}
              }}; 
-
-//console.log(serialize(root1));
-//console.log(serialize(root5));
+			 
 console.log(deserialize(serialize(root5)));
