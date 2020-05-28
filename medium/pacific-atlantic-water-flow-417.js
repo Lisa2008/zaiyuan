@@ -1,86 +1,133 @@
 var pacificAtlantic = function(matrix) {
-  if(matrix.length === 0) return [];
+    if(matrix.length === 0) return [];
+  let newM = new Array(matrix.length);
+  for(let i = 0; i < newM.length; i++){
+    newM[i] = new Array(matrix[i].length);
+  }
+  
   let ret = [];
+  let tempObj;
   
   for(let i = 0; i < matrix.length; i++){
     for(let j = 0; j < matrix[i].length; j++){
-      if(i === 1 && j ===4){
-      judgeAPoint(i, j, matrix, ret);
-      }
+      tempObj = calculatePathThrough(i, j, matrix, newM);
+      if((tempObj.up || tempObj.left) && (tempObj.down || tempObj.right)) ret.push([i,j]);
+    }
+  }
+      
+  console.log(newM);
+  console.log(ret);
+};
+
+function calculatePathThrough(x, y, matrix, newm){
+  if(typeof newm[x][y] === 'undefined')
+    newm[x][y] = {up: null, down: null, left: null, right: null};
+            
+  if(x === 0 || y === 0) {
+      newm[x][y].up = true;
+      newm[x][y].left = true;
+  }
+  if(x === matrix.length -1 || y === matrix[0].length -1) {
+      newm[x][y].down = true;
+      newm[x][y].right = true;
+  }
+  
+  let tempobj;
+  if((newm[x][y].up || newm[x][y].left) && (newm[x][y].down || newm[x][y].right)) return newm[x][y];
+  
+  else if(newm[x][y].up || newm[x][y].left) {
+    tempobj = goOneStep(x,y,matrix,newm, 'right');
+    if(tempobj.right) return newm[x][y];
+    else{
+      return goOneStep(x,y,matrix,newm, 'down');
     }
   }
   
-  return ret;
-  
-};
-
-function judgeAPoint(x, y, matrix, ret){
-  let con = {p: false, a: false};
-  
-  if(x === 0 || y === 0) con.p = true;
-  if(x === (matrix.length -1) || y === (matrix[0].length -1)) con.a = true;
-  console.log(con);
-  
-  let tempa = matrix[x];
-  
-  //test row
-  let tempret = judgeAPoint1(y, tempa, con);
-  
-  if(tempret.p && tempret.a) ret.push([x,y]);
-  
-  else{
-    tempa = getColum(y, matrix);
-    tempret = judgeAPoint1(x, tempa, tempret);
-    if(tempret.p && tempret.a) ret.push([x,y]);
+  else if(newm[x][y].down || newm[x][y].right) {
+    tempobj = goOneStep(x,y,matrix,newm, 'left');
+    if(tempobj.left) return newm[x][y];
+    else{
+      return goOneStep(x,y,matrix,newm, 'up');
+    }
   }
   
-}
-  
-function getColum(y, matrix){
-  let ret = [];
-  for(let i = 0; i < matrix.length; i++){
-    ret.push(matrix[i][y]);
-  }
-  
-  return ret;
-}
-
-function judgeAPoint1(index, array, con){
-  
-  if(con.p & con.a) return con;
-  
-  if(con.p) con.a = goRight(index, array);
-  else if(con.a) con.p = goLeft(index, array);
   else {
-    con.p = goLeft(index, array);
-    con.a = goRight(index, array);
+    newm[x][y] = goOneStep(x,y,matrix,newm, 'right');
+    newm[x][y] = goOneStep(x,y,matrix,newm, 'down');
+    newm[x][y] = goOneStep(x,y,matrix,newm, 'left');
+    return goOneStep(x,y,matrix,newm, 'up');
   }
   
-  return con;
 }
 
-function goRight(index, array){
-  let tempnow = array[index];
+function goOneStep(x,y,matrix,newm,direction){
   
-  for(let i = index; i < array.length; i++){
-    if(tempnow < array[i]) return false;
-    tempnow = array[i];
+  if(direction === 'right'){
+    if(y < matrix[x].length -1) {
+      if(matrix[x][y] < matrix[x][y+1])  
+        newm[x][y].right = false;
+      else{
+        if(typeof newm[x][y+1] === 'undefined'){
+          newm[x][y+1] = {up: null, down: null, left: null, right: null};
+        }
+        if(newm[x][y+1].right != null) newm[x][y].right = newm[x][y+1].right;
+        else newm[x][y].right = goOneStep(x,y+1,matrix,newm,direction).right;
+      }
+    }
+    else newm[x][y].right = true;
   }
-  return true;
-}
+  
+  if(direction === 'down'){
+    if(x < matrix.length -1) {
+      if(matrix[x][y] < matrix[x + 1][y])  
+        newm[x][y].down = false;
+      else{
+        if(typeof newm[x+1][y] === 'undefined'){
+          newm[x+1][y] = {up: null, down: null, left: null, right: null};
+        }
+        if(newm[x+1][y].down != null) newm[x][y].down = newm[x][y+1].down;
+        else newm[x][y].down = goOneStep(x+1,y,matrix,newm,direction).down;
+      }
+    }
+    else newm[x][y].down = true;
+  }
+  
+  if(direction === 'left'){
+    if(y > 0){
+      if(matrix[x][y] < matrix[x][y-1])
+        newm[x][y].left = false;
+      else {
+        if(typeof newm[x][y-1] === 'undefined'){
+          newm[x][y-1] = {up: null, down: null, left: null, right: null};
+        }
 
-function goLeft(index, array){
-  let tempnow = array[index];
-  
-  for(let i = index -1; i >=0; i--){
-    if(tempnow < array[i]) return false;
-    tempnow = array[i];
+        if(newm[x][y-1].left != null) newm[x][y].left = newm[x][y-1].left;
+        else newm[x][y].left = goOneStep(x, y -1, matrix, newm,direction).left;
+      }
+    }
+    else newm[x][y].left = true;
   }
-  return true;
+  
+  if(direction === 'up'){
+    if(x > 0) {
+      if(matrix[x][y] < matrix[x-1][y])
+        newm[x][y].up = false;
+      else {
+        if(typeof newm[x-1][y] === 'undefined'){
+          newm[x-1][y] = {up: null, down: null, left: null, right: null};
+        }
+
+        if(newm[x-1][y].up != null) newm[x][y].up = newm[x-1][y].up;
+        else newm[x][y].up = goOneStep(x -1, y, matrix, newm,direction).up;
+      }
+    }
+    else newm[x][y].up = true;
+  }
+    
+  return newm[x][y];
 }
 
 let mt = [[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]];
-let mt1 = [[1,2,2]];
-
+let mt1 = [[1,2,2,3,5],[3,2,3,4,4]];
 console.log(pacificAtlantic(mt));
 //console.log(pacificAtlantic(mt1));
