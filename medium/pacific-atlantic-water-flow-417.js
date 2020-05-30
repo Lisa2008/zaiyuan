@@ -10,11 +10,16 @@ var pacificAtlantic = function(matrix) {
   
   for(let i = 0; i < matrix.length; i++){
     for(let j = 0; j < matrix[i].length; j++){
-      tempObj = calculatePathThrough(i, j, matrix, newM);
-      if((tempObj.up || tempObj.left) && (tempObj.down || tempObj.right)) ret.push([i,j]);
+      calculatePathThrough(i, j, matrix, newM);
     }
   }
-      
+  
+  for(let i = 0; i < matrix.length; i++){
+    for(let j = 0; j < matrix[i].length; j++){
+      if((newM[i][j].up || newM[i][j].left) && (newM[i][j].down || newM[i][j].right)) ret.push([i,j]);
+    }
+  }
+  
   console.log(newM);
   //console.log(ret);
   return ret;
@@ -24,44 +29,25 @@ function calculatePathThrough(x, y, matrix, newm){
   if(typeof newm[x][y] === 'undefined')
     newm[x][y] = {up: null, down: null, left: null, right: null};
             
-  if(x === 0 || y === 0) {
-      newm[x][y].up = true;
-      newm[x][y].left = true;
-  }
-  if(x === matrix.length -1 || y === matrix[0].length -1) {
-      newm[x][y].down = true;
-      newm[x][y].right = true;
-  }
+  if(x === 0) newm[x][y].up = true;
+  if(y === 0) newm[x][y].left = true;
+  if(x === matrix.length -1) newm[x][y].down = true;
+  if(y === matrix[0].length -1) newm[x][y].right = true;
+
   
   let tempobj;
   if((newm[x][y].up || newm[x][y].left) && (newm[x][y].down || newm[x][y].right)) return newm[x][y];
   
-  else if(newm[x][y].up || newm[x][y].left) {
-    tempobj = goOneStep(x,y,matrix,newm, 'right');
-    if(tempobj.right) return newm[x][y];
-    else{
-      return goOneStep(x,y,matrix,newm, 'down');
-    }
-  }
-  
-  else if(newm[x][y].down || newm[x][y].right) {
-    tempobj = goOneStep(x,y,matrix,newm, 'left');
-    if(tempobj.left) return newm[x][y];
-    else{
-      return goOneStep(x,y,matrix,newm, 'up');
-    }
-  }
-  
-  else {
-    newm[x][y] = goOneStep(x,y,matrix,newm, 'right');
-    newm[x][y] = goOneStep(x,y,matrix,newm, 'down');
-    newm[x][y] = goOneStep(x,y,matrix,newm, 'left');
-    return goOneStep(x,y,matrix,newm, 'up');
-  }
-  
+  newm[x][y] = goOneStep(x,y,matrix,newm, 'right');
+  newm[x][y] = goOneStep(x,y,matrix,newm, 'down');
+  newm[x][y] = goOneStep(x,y,matrix,newm, 'left');
+  return goOneStep(x,y,matrix,newm, 'up');
 }
 
 function goOneStep(x,y,matrix,newm,direction){
+  if(typeof newm[x][y] != 'undefined'){
+    if(newm[x][y][direction]) return newm[x][y];
+  }
   
   if(direction === 'right'){
     if(y < matrix[x].length -1) {
