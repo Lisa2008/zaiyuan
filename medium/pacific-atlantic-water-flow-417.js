@@ -16,7 +16,8 @@ var pacificAtlantic = function(matrix) {
   }
       
   console.log(newM);
-  console.log(ret);
+  //console.log(ret);
+  return ret;
 };
 
 function calculatePathThrough(x, y, matrix, newm){
@@ -70,8 +71,9 @@ function goOneStep(x,y,matrix,newm,direction){
         if(typeof newm[x][y+1] === 'undefined'){
           newm[x][y+1] = {up: null, down: null, left: null, right: null};
         }
-        if(newm[x][y+1].right != null) newm[x][y].right = newm[x][y+1].right;
-        else newm[x][y].right = goOneStep(x,y+1,matrix,newm,direction).right;
+        if(newm[x][y+1].right == null) goOneStep(x,y+1,matrix,newm,direction);
+        if(newm[x][y+1].down == null) goOneStep(x,y+1,matrix,newm,'down');
+        newm[x][y].right = newm[x][y+1].right || newm[x][y+1].down;
       }
     }
     else newm[x][y].right = true;
@@ -85,8 +87,9 @@ function goOneStep(x,y,matrix,newm,direction){
         if(typeof newm[x+1][y] === 'undefined'){
           newm[x+1][y] = {up: null, down: null, left: null, right: null};
         }
-        if(newm[x+1][y].down != null) newm[x][y].down = newm[x][y+1].down;
-        else newm[x][y].down = goOneStep(x+1,y,matrix,newm,direction).down;
+        if(newm[x+1][y].right == null) goOneStep(x+1,y,matrix,newm,'right');
+        if(newm[x+1][y].down == null) goOneStep(x+1,y,matrix,newm,direction);
+        newm[x][y].down = newm[x+1][y].right || newm[x+1][y].down;
       }
     }
     else newm[x][y].down = true;
@@ -100,9 +103,9 @@ function goOneStep(x,y,matrix,newm,direction){
         if(typeof newm[x][y-1] === 'undefined'){
           newm[x][y-1] = {up: null, down: null, left: null, right: null};
         }
-
-        if(newm[x][y-1].left != null) newm[x][y].left = newm[x][y-1].left;
-        else newm[x][y].left = goOneStep(x, y -1, matrix, newm,direction).left;
+        if(newm[x][y-1].left == null) goOneStep(x,y-1,matrix,newm,direction);
+        if(newm[x][y-1].up == null) goOneStep(x,y-1,matrix,newm,'up');
+        newm[x][y].left = newm[x][y-1].left || newm[x][y-1].up;
       }
     }
     else newm[x][y].left = true;
@@ -116,9 +119,9 @@ function goOneStep(x,y,matrix,newm,direction){
         if(typeof newm[x-1][y] === 'undefined'){
           newm[x-1][y] = {up: null, down: null, left: null, right: null};
         }
-
-        if(newm[x-1][y].up != null) newm[x][y].up = newm[x-1][y].up;
-        else newm[x][y].up = goOneStep(x -1, y, matrix, newm,direction).up;
+        if(newm[x-1][y].left == null) goOneStep(x-1,y,matrix,newm,'left');
+        if(newm[x-1][y].up == null) goOneStep(x-1,y,matrix,newm,direction);
+        newm[x][y].left = newm[x-1][y].left || newm[x-1][y].up;
       }
     }
     else newm[x][y].up = true;
@@ -128,6 +131,6 @@ function goOneStep(x,y,matrix,newm,direction){
 }
 
 let mt = [[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]];
-let mt1 = [[1,2,2,3,5],[3,2,3,4,4]];
-console.log(pacificAtlantic(mt));
-//console.log(pacificAtlantic(mt1));
+let mt1 = [[1,2,3],[8,9,4],[7,6,5]];
+//console.log(pacificAtlantic(mt)); //[[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]]
+console.log(pacificAtlantic(mt1)); //[[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]]
