@@ -16,7 +16,7 @@ If there is such window, you are guaranteed that there will always be only one u
  * @param {string} t
  * @return {string}
  */
-var minWindow = function(s, t) {
+/*var minWindow = function(s, t) {
     if(!s || !t) return '';
   if(s.length === 0 || t.length === 0) return '';
   
@@ -64,5 +64,64 @@ var minWindow = function(s, t) {
   
   return miniwin;
 };
+*/
+
+/**
+Sliding window
+*/
+
+var minWindow = function(s, t) {
+  if(!s || !t) return '';
+  if(s.length === 0 || t.length === 0 || t.length > s.length) return ''
+  if(s === t) return s;
+  
+  let tmap = new Map();
+  
+  for(let c of t){
+    if(!tmap.has(c)) {
+      tmap.set(c, 1);
+    }else {
+      tmap.set(c, tmap.get(c) + 1);
+    }
+  }
+  
+  let left = 0;
+  let right = 0;
+  
+  let win = '';
+  let char;
+  let count = t.length;
+  let temps
+  
+  while(right < s.length){
+    char = s.charAt(right);
+    if(tmap.has(char)){
+      tmap.set(char, tmap.get(char) - 1);
+      if(tmap.get(char) >= 0) count--;
+      
+      if(count === 0){
+        
+        while(count === 0){
+          char = s.charAt(left);
+          
+          if(tmap.has(char)){
+            tmap.set(char, tmap.get(char) + 1);
+            if(tmap.get(char) > 0) count++;
+            
+            temps = s.substring(left, right + 1);
+            if(!win) win = temps;
+            else if(win.length > (right + 1 - left)) {
+              win = temps;
+            }
+          }
+          left++;
+        }
+      }
+    }
+    
+    right++;
+  }
+  return win;
+}
 
 console.log(minWindow('ADOBECODEBANC', 'ABC'));
