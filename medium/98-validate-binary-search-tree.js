@@ -63,23 +63,25 @@ function isValidBST1(node, parent){
   if(ret){
     let a = true;
     let b = true;
-    
+    let temp = {};
     if(node.left){
-      parent.left = node.val;
-      a = isValidBST1(node.left, parent);
+      temp = Object.assign(temp, parent);
+      temp.left = node.val;
+      a = isValidBST1(node.left, temp);
     }
     
     if(node.right){
-      parent.right = node.val;
-      b = isValidBST1(node.right, parent);
+      temp = Object.assign(temp, parent);
+      temp.right = node.val;
+      b = isValidBST1(node.right, temp);
     }
+    
     return a && b;
     
   }
   
   return false;
 }
-
 
 let t = {val: 2,
          left: {val: 1, left: null, right: null},
