@@ -42,51 +42,21 @@ p and q are different and both values will exist in the BST.
  * @return {TreeNode}
  */
 var lowestCommonAncestor = function(root, p, q) {
-    let map = new Map();
-  let pa = [];
-  let qa = [];
+  let node = root;
   
-  foo(root, null, map);
-  
-  for(let num of map.keys()){
-    if(num === p) pa = map.get(num);
-    if(num === q) qa = map.get(num);
-    if(pa.length !== 0 && qa.length !== 0) break;
+  if(node.val > p.val && node.val < q.val) {
+    return node;
+  }
+  else if(node.val > p.val && node.val > q.val) {
+    return lowestCommonAncestor(node.left, p,q);
+  }
+  else if(node.val < p.val && node.val < q.val){
+    return lowestCommonAncestor(node.right, p,q);
   }
   
-  let cur;
-  for(let i = 0; i < pa.length; i++){
-    if(pa[i] === qa[i]){
-      cur = pa[i];
-    }
-    else break;
-  }
-  return cur;
-  
-};
-
-function foo(node, parent, map){
-  let na;
-  
-  if(!parent) {
-    na = [node.val];
-  }else{
-    na = [...map.get(parent.val)];
-    na.push(node.val);
-  }
-  
-  map.set(node.val, na);
-  
-  if(!node.left && !node.right) return;
-  
-  if(node.left) {
-      foo(node.left, node, map);
-  }
-  
-  if(node.right){ 
-    foo(node.right, node, map);
-  }
+  return node;
 }
+
 
 let t1 = {val: 6,
           left: {val: 2,
@@ -98,4 +68,8 @@ let t1 = {val: 6,
                   left: {val: 7, left: null, right: null},
                   right: {val: 9, left: null, right: null}}};
 
-console.log(lowestCommonAncestor(t1, 3,7));
+//console.log(lowestCommonAncestor(t1, 3,7));
+let t2 = {val: 7, left: null, right: null};
+let t3 = {val: 5, left: null, right: null};
+
+console.log(lowestCommonAncestor(t1, t2,t3));
