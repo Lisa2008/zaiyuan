@@ -27,11 +27,16 @@ If all integer numbers from the stream are between 0 and 100, how would you opti
 If 99% of all integer numbers from the stream are between 0 and 100, how would you optimize it?
 
 */
+var LinkedList = function(val, next){
+  this.value = val;
+  this.next = next;
+}
 /**
  * initialize your data structure here.
  */
 var MedianFinder = function() {
-    this.arr = [];
+  this.left = {top: null, len: 0};
+  this.right = {top: null, len: 0};
 };
 
 /** 
@@ -39,15 +44,123 @@ var MedianFinder = function() {
  * @return {void}
  */
 MedianFinder.prototype.addNum = function(num) {
-    this.arr.push(num);
-    this.arr.sort((a, b) => a - b);
+  let ll = new LinkedList(num, null);
+  
+  if(!this.left.top && !this.right.top){
+    this.left.top = ll;
+    this.left.len++;
+  }else{
+    let cur;
+    let inserted = false;
+    if(this.left.top && num < this.left.top.value){
+      cur = this.left.top;
+      inserted = false;
+      while(!inserted) {
+        
+        if(!cur.next) {
+          cur.next = ll;
+          inserted = true;
+        }
+        
+        else{
+         if(num >= cur.next.value){
+           ll.next = cur.next;
+           cur.next = ll;
+           inserted = true;
+         }else{
+           cur = cur.next;
+         }
+        }
+        if(inserted) this.left.len++;
+      }
+    }
+    
+    else if(this.right.top && num >= this.right.top.value){
+      cur = this.right.top;
+      inserted = false;
+      while(!inserted) {
+        
+        if(!cur.next) {
+          cur.next = ll;
+          inserted = true;
+        }
+        
+        else{
+         if(num < cur.next.value){
+           ll.next = cur.next;
+           cur.next = ll;
+           inserted = true;
+         }else{
+           cur = cur.next;
+         }
+        }
+        if(inserted) this.right.len++;
+      }
+    }
+    
+    else if(!this.left.top && num < this.right.top.value){
+      this.left.top = ll;
+      this.left.len++;
+    }
+    
+    else if(!this.right.top && num >= this.left.top.value){
+      this.right.top = ll;
+      this.right.len++;
+    }
+    
+    else if(this.left.top && this.right.top && (num >= this.left.top.value && num < this.right.top.value)){
+      ll.next = this.right.top;
+      this.right.top = ll;
+      this.right.len++;
+    }
+    
+  }
+  
+  if(Math.abs(this.left.len - this.right.len) > 1){
+    let templl;
+    if(this.left.len > this.right.len){
+      templl = this.left.top;
+            
+      this.left.top = this.left.top.next;
+      
+      templl.next = this.right.top;
+      this.right.top = templl;
+      
+      this.left.len--;
+      this.right.len++;
+    }
+    else{
+      templl = this.right.top;
+      this.right.top = this.right.top.next;
+      
+      templl.next = this.left.top;
+      this.left.top = templl;
+      
+      this.left.len++;
+      this.right.len--;
+    }
+  }
 };
 
 /**
  * @return {number}
  */
 MedianFinder.prototype.findMedian = function() {
-    let len = this.arr.length;
-  if(len%2) return this.arr[Math.floor(len/2)];
-  else return (this.arr[len/2 - 1] + this.arr[len/2]) / 2;
+  if(this.left.len !== this.right.len) 
+    return (this.left.len > this.right.len) ? this.left.top.value : this.right.top.value;
+  else return (this.left.top.value + this.right.top.value) / 2;
 };
+
+
+let test = new MedianFinder();
+
+test.addNum(6);
+console.log(test.findMedian());
+test.addNum(10);
+console.log(test.findMedian());
+test.addNum(2);
+console.log(test.findMedian());
+test.addNum(6);
+console.log(test.findMedian());
+test.addNum(5);
+console.log(test.findMedian());
