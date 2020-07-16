@@ -32,18 +32,48 @@ function validTree(n, edges){
     }
   }
   
+  //console.log(map);
+  
   let visited = [];
-  let index = 0;
-  while( index < n){
-    visited.push(index);
-    if(!map.get(index)) {
-      index++;
-      continue;
-    }else{
+  let children;
+  let cur = 0;
+  let parent = null;
+  
+  let ret = verifyTree(map, cur, parent, visited);
+  
+  return ret;
+}
+
+function verifyTree(map, cur, parent, visited){
+  //console.log('cur ' + cur + ' parent ' + parent);
+  
+  if(visited.length === map.size) return true;
+  
+  visited.push(cur);
+  //console.log(visited);
+  let children = map.get(cur);
+  if(!children){
+    cur++;
+    return verifyTree(map, cur, parent, visited);
+  }else{
+    for(let cc of children){
+      if(parent !== null && cc === parent) continue;
+      if(parent !== null && children.length === 1) {
+        return true;
+      }
       
+      if(visited.indexOf(cc) !== -1) return false;
+      
+      parent = cur;
+      cur = cc;
+      if(!verifyTree(map, cur,parent,visited)) return false;
     }
   }
+  return true;
 }
 
 let arry1 = [[0, 1], [0, 2], [0, 3], [1, 4]];
-console.log(validTree(5, arry1));
+console.log(validTree(5, arry1)); // true
+
+/*let arry2 = [[0, 1], [1, 2], [2, 3], [1, 3], [1, 4]];
+console.log(validTree(5, arry2)); //false*/
