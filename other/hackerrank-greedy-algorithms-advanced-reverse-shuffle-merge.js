@@ -8,72 +8,79 @@ function reverseShuffleMerge(s) {
     count = map.get(c) || 0;
     map.set(c, count + 1);
   });
-//  console.log(map);
+  
   s = reverseString(s);
+  //console.log(s);
   
-  let keya = createArray(map).sort();
+  let ret = [];
+  let suposLen = len/2;
   
-  let ret = '';
-  return ckeckC(s, keya, ret);
+  let newMap = new Map();
+  let c;
+  let tempArr;
+  let index;
+  for(let i = 0; i < len; i++){
+    c = s.charAt(i);
+    
+    if(ret.length < suposLen){
+      count = newMap.get(c) || 0;
+      if(count < (map.get(c) / 2)){
+        ret.push(c);
+        newMap.set(c, count + 1);
+      }else{
+        ret = replaceC1(newMap.get(c), ret, c);
+      }
+    }else{
+      ret = replaceC1(newMap.get(c), ret, c);
+    }
+    //console.log(ret.join(''));
+  }
+  
+  return ret.join('');
+   
+}
+
+function replaceC1(countC, minArr, c){
+  let index = 1;
+  let tempArr;
+  
+  while(index <= countC){
+    tempArr = [...minArr];
+    tempArr = replaceC(tempArr, c, index);
+    if(tempArr < minArr) {
+      return tempArr;
+    }else{
+      index++;
+    }
+  }
+  return minArr;
 }
 
 function reverseString(s){
   return [...s].reverse().join('');
 }
 
-function createArray(m){
-  let ret = [];
-  m.forEach((value, key) => {
-    for(let i = 0; i < (value / 2); i++){
-      ret.push(key);
+function replaceC(arr, c, count){
+  let len = arr.length;
+  let i;
+  let index = 1;
+  for(i = 0; i < len; i++){
+    if(arr[i] === c){
+      if(index === count) break;
+      else index++;
     }
-  });
-  
-  return ret;
-}
-
-function ckeckC(str, arr, ret){
-  let tempa;
-  let curc;
-  let ret1 = ret;
-  let index;
-  
-  /*console.log('str ' + str);
-  console.log(arr);
-  console.log('ret ' + ret);*/
-  
-  for(let i = 0; i <  arr.length; i++){
- // let i = 0;
-    tempa = [...arr];
-    curc = tempa.splice(i,1)[0];
-    ret1 = ret;
-    index = findC(str, curc, str.length - arr.length);
-    if(index === -1) continue;
-  //if(index === -1) return null
-    else{
-      ret1 += curc;
-      if(tempa.length === 0) return ret1;
-      else{
-        let newstr = str.slice(index + 1);
-        let what = ckeckC(newstr, tempa, ret1);
-       // return what;
-        if(what === null) continue;
-        else return what;
-      }
-   }
   }
-   return null; 
-}
-
-function findC(str, c, ref){
-  let index = str.indexOf(c);
-  if(index === -1 || index > ref) return -1;
-  else return index;
+  arr.splice(i,1);
+  arr.push(c);
+  
+  return arr;
 }
 
 //console.log(reverseShuffleMerge('abcabc')); // acb
 //console.log(reverseShuffleMerge('eggegg')); // egg
 //console.log(reverseShuffleMerge('abcdefgabcdefg')); //agfedcb
-console.log(reverseShuffleMerge('bdabaceadaedaaaeaecdeadababdbeaeeacacaba')); //aaaaaabaaceededecbdb
+//console.log(reverseShuffleMerge('bdabaceadaedaaaeaecdeadababdbeaeeacacaba')); //aaaaaabaaceededecbdb
 
-  
+let str1 = 'djjcddjggbiigjhfghehhbgdigjicafgjcehhfgifadihiajgciagicdahcbajjbhifjiaajigdgdfhdiijjgaiejgegbbiigida';
+
+console.log(reverseShuffleMerge(str1)); //aaaaabccigicgjihidfiejfijgidgbhhehgfhjgiibggjddjjd
