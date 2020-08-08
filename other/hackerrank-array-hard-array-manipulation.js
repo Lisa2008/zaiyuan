@@ -54,3 +54,21 @@ The required answer will be 200.
 
 */
 
+function arrayManipulation(n, queries) {
+  if(n === 0 || !queries || queries.length === 0) return 0;
+  
+  let arr = new Array(n).fill(0);
+  let max = null;
+  
+  for(let item of queries){
+    for(let i = item[0] - 1;  i < item[1]; i++){
+      arr[i] += item[2];
+      if(!max) max = arr[i];
+      else max = arr[i] > max ? arr[i]: max;
+    }
+  }
+  
+  return max;
+}
+
+console.log(arrayManipulation(5, [ [ 1, 2, 100 ], [ 2, 5, 100 ], [ 3, 4, 100 ] ]));
