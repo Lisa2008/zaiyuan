@@ -54,6 +54,7 @@ The required answer will be 200.
 
 */
 
+//timeout
 function arrayManipulation(n, queries) {
   if(n === 0 || !queries || queries.length === 0) return 0;
   
@@ -72,3 +73,49 @@ function arrayManipulation(n, queries) {
 }
 
 console.log(arrayManipulation(5, [ [ 1, 2, 100 ], [ 2, 5, 100 ], [ 3, 4, 100 ] ]));
+
+//timeout
+function arrayManipulation(n, queries) {
+  if(n === 0 || !queries || queries.length === 0) return 0;
+  
+  let max = queries[0][2];
+  let map = new Map();
+  let sum;
+  
+  for(let item of queries){
+    for(let i = item[0] -1; i < item[1]; i++){
+      sum = (map.get(i) || 0) + item[2];
+      max = sum > max? sum: max;
+      map.set(i, sum);
+    }
+  }
+  
+  return max;
+}
+
+//final version
+function arrayManipulation(n, queries) {
+  if(n === 0 || !queries || queries.length === 0) return 0;
+  
+  let arr = new Array(n + 1).fill(0);
+  
+  for(let item of queries){
+    arr[item[0] -1] += item[2];
+    arr[item[1]] += -item[2];
+  }
+  
+  let max = null;
+  let sum;
+  for(let i of arr){
+    if(!max) {
+      max = i;
+      sum = i;
+    }
+    else{
+      sum += i;
+      max = max > sum? max: sum;
+    }
+    
+  }
+  return max;
+}
