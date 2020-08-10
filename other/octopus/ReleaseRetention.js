@@ -14,10 +14,15 @@ function releaseRetention(process) {
 
     let releaseSet = new Set();
 
+    // Log the most recently deployed releases list for each project/evnironment combination, 
+    // and the releases that should be kept are from these list.
+
     console.log(`For each valid project/environment combination, the list of ${process.numberOfMostRecent} most recently deployed releases`)
     let logStr;
     latestReleasesMap.forEach((value, key) => {
         let projectEnvironment = JSON.parse(key);
+
+        // Validate ProjectId and EnvironmentId according to projects and environments list
         if(projectEnvironmentIsIdInArray(process.projects, projectEnvironment.ProjectId) && projectEnvironmentIsIdInArray(process.environments, projectEnvironment.EnvironmentId)){
             logStr = `[${projectEnvironment.ProjectId}, ${projectEnvironment.EnvironmentId}] => [`;
             for(let release of value) {
@@ -34,19 +39,22 @@ function releaseRetention(process) {
 
 function getProjectId(releases, releaseId) {
     for(let release of releases) {
-        if(release.Id === releaseId) return release.ProjectId;
+        if(release.Id === releaseId) return release.ProjectId || null;
     }
     return null;
 }
 
 function insertLatestDeployedReleaseArray(latestDeployedReleases, deployment, maxLen) {
     let newDateTimeMilliSec = Date.parse(deployment.DeployedAt) || 0;
+    // If a deployment does not have DeployedAt property, it is an invalid deployment, just return.
     if(newDateTimeMilliSec === 0) return;
 
     let arrayLen = latestDeployedReleases.length || 0;
     let i;
     
     for(i = 0; i < arrayLen; i++) {
+        // If current deployment's release is in the most recently list, and current deployment time is newer than the recorded one,
+        // just update the release's deployment time
         if(latestDeployedReleases[i].ReleaseId === deployment.ReleaseId && latestDeployedReleases[i].DeployMillisec < newDateTimeMilliSec) {
             latestDeployedReleases[i].DeployMillisec = newDateTimeMilliSec;
             break;
@@ -57,7 +65,10 @@ function insertLatestDeployedReleaseArray(latestDeployedReleases, deployment, ma
         if(arrayLen < maxLen) {
             latestDeployedReleases.push(newDeployedRelease);
         }
-        else { 
+        else {
+            // If current deployment's release is not in the most recently releases list, 
+            // but the deployment time is newer than the most recently releases list's oldest release deployment time,
+            // replace the release with oldest deployment time with the current deployment's release.
             replaceLatestDeployedReleaseArray(latestDeployedReleases, newDeployedRelease);
         }
     }
