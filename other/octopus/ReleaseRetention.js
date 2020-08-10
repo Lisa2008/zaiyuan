@@ -1,11 +1,16 @@
 
 function releaseRetention(process) {
-    if(process.numberOfMostRecent <= 0) return null;
+    if(!process || !process.deployments || process.deployments.constructor !== Array ||
+        !process.environments || process.environments.constructor !== Array || 
+        !process.projects || process.projects.constructor !== Array ||
+        !process.releases || process.releases.constructor !== Array ||
+        !process.numberOfMostRecent || process.numberOfMostRecent <= 0) return [];
 
     let latestReleasesMap = new Map();
     let projectEnvironmentStr;
     let latestDeployedReleases;
     for(let deployment of process.deployments) {
+        if(!deployment.ReleaseId || !deployment.EnvironmentId) continue;
         projectEnvironmentStr = JSON.stringify({ ProjectId: getProjectId(process.releases, deployment.ReleaseId), EnvironmentId: deployment.EnvironmentId });
         latestDeployedReleases = latestReleasesMap.get(projectEnvironmentStr) || [];
         insertLatestDeployedReleaseArray(latestDeployedReleases, deployment, process.numberOfMostRecent);
@@ -38,6 +43,7 @@ function releaseRetention(process) {
 }
 
 function getProjectId(releases, releaseId) {
+    if(!releases || !releaseId) return null;
     for(let release of releases) {
         if(release.Id === releaseId) return release.ProjectId || null;
     }
@@ -45,11 +51,12 @@ function getProjectId(releases, releaseId) {
 }
 
 function insertLatestDeployedReleaseArray(latestDeployedReleases, deployment, maxLen) {
+    if(!deployment || !deployment.ReleaseId || !deployment.DeployedAt) return;
+
     let newDateTimeMilliSec = Date.parse(deployment.DeployedAt) || 0;
-    // If a deployment does not have DeployedAt property, it is an invalid deployment, just return.
     if(newDateTimeMilliSec === 0) return;
 
-    let arrayLen = latestDeployedReleases.length || 0;
+    let arrayLen = latestDeployedReleases.length;
     let i;
     
     for(i = 0; i < arrayLen; i++) {
@@ -75,18 +82,14 @@ function insertLatestDeployedReleaseArray(latestDeployedReleases, deployment, ma
 }
 
 function replaceLatestDeployedReleaseArray(latestDeployedReleasesArray, deployedRelease) {
-    let oldestDateTime = null;
-    let oldestIndex;
+    let oldestDateTime = latestDeployedReleasesArray[0].DeployMillisec;
+    let oldestIndex = 0;
     let arrayLen = latestDeployedReleasesArray.length;
 
-    for(let i = 0; i < arrayLen; i++){
-        if(!oldestDateTime) {
+    for(let i = 1; i < arrayLen; i++){
+        if(oldestDateTime > latestDeployedReleasesArray[i].DeployMillisec) {
             oldestDateTime = latestDeployedReleasesArray[i].DeployMillisec;
             oldestIndex = i;
-        }
-        else if(oldestDateTime > latestDeployedReleasesArray[i].DeployMillisec) {
-                oldestDateTime = latestDeployedReleasesArray[i].DeployMillisec;
-                oldestIndex = i;
         }
     }
     if(deployedRelease.DeployMillisec > oldestDateTime) {
@@ -96,6 +99,7 @@ function replaceLatestDeployedReleaseArray(latestDeployedReleasesArray, deployed
 
 function projectEnvironmentIsIdInArray(array, id) {
     for(let item of array) {
+        if(!item.Id) continue;
         if(item.Id === id) return true;
     }
     return false;

@@ -5,7 +5,7 @@ const process = {
     environments: require('./Environments.json'),
     projects: require('./Projects.json'),
     releases: require('./Releases.json'),
-    numberOfMostRecent: 2
+    numberOfMostRecent: 10
 };
 
 console.log(releaseRetention(process));
