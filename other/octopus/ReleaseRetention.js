@@ -7,13 +7,11 @@ function releaseRetention(number) {
     if(number <= 0) return null;
 
     let latestReleasesMap = new Map();
-    initLatestDeploymentMap(latestReleasesMap);
-
     let projectEnvironmentStr;
     let latestDeployedReleases;
     for(let deployment of deployments) {
         projectEnvironmentStr = JSON.stringify({ ProjectId: getProjectId(deployment.ReleaseId), EnvironmentId: deployment.EnvironmentId });
-        latestDeployedReleases = latestReleasesMap.get(projectEnvironmentStr);
+        latestDeployedReleases = latestReleasesMap.get(projectEnvironmentStr) || [];
         if(latestDeployedReleases) {
             insertLatestDeployedReleaseArray(latestDeployedReleases, deployment, number);
             latestReleasesMap.set(projectEnvironmentStr, latestDeployedReleases);
@@ -24,23 +22,16 @@ function releaseRetention(number) {
 
     let releaseSet = new Set();
 
-    for(let values of latestReleasesMap.values()) {
-        for(let value of values) {
-            releaseSet.add(value.ReleaseId);
+    latestReleasesMap.forEach((value, key) => {
+        let projectEnvironment = JSON.parse(key);
+        if(projectEnvironmentIsIdInArray(projects, projectEnvironment.ProjectId) && projectEnvironmentIsIdInArray(environments, projectEnvironment.EnvironmentId)){
+            for(let release of value) {
+                releaseSet.add(release.ReleaseId);
+            }
         }
-    }
+    });
 
     return Array.from(releaseSet);
-}
-
-function initLatestDeploymentMap(map) {
-    let projectEnvironment;
-    for(let project of projects){
-        for(let environment of environments){
-            projectEnvironment = JSON.stringify({ ProjectId: project.Id, EnvironmentId: environment.Id });
-            map.set(projectEnvironment, []);
-        }
-    }
 }
 
 function getProjectId(releaseId) {
@@ -51,7 +42,9 @@ function getProjectId(releaseId) {
 }
 
 function insertLatestDeployedReleaseArray(latestDeployedReleases, deployment, maxLen) {
-    let newDateTimeMilliSec = Date.parse(deployment.DeployedAt);
+    let newDateTimeMilliSec = Date.parse(deployment.DeployedAt) || 0;
+    if(newDateTimeMilliSec === 0) return;
+
     let arrayLen = latestDeployedReleases.length || 0;
     let i;
     
@@ -82,16 +75,21 @@ function replaceLatestDeployedReleaseArray(latestDeployedReleasesArray, deployed
             oldestDateTime = latestDeployedReleasesArray[i].DeployMillisec;
             oldestIndex = i;
         }
-        else {
-            if (oldestDateTime > latestDeployedReleasesArray[i].DeployMillisec){
+        else if(oldestDateTime > latestDeployedReleasesArray[i].DeployMillisec) {
                 oldestDateTime = latestDeployedReleasesArray[i].DeployMillisec;
                 oldestIndex = i;
-            }
         }
     }
-    if(deployedRelease.DeployMillisec > oldestDateTime){
+    if(deployedRelease.DeployMillisec > oldestDateTime) {
         latestDeployedReleasesArray.splice(oldestIndex, 1, deployedRelease);
     }
 }
 
-console.log(releaseRetention(10));
+function projectEnvironmentIsIdInArray(array, id) {
+    for(let item of array) {
+        if(item.Id === id) return true;
+    }
+    return false;
+}
+
+console.log(releaseRetention(1));
