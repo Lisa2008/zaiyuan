@@ -1,40 +1,38 @@
-const deployments = require('./Deployments.json');
-const environments = require('./Environments.json');
-const projects = require('./Projects.json');
-const releases = require('./Releases.json');
 
-function releaseRetention(number) {
-    if(number <= 0) return null;
+function releaseRetention(process) {
+    if(process.numberOfMostRecent <= 0) return null;
 
     let latestReleasesMap = new Map();
     let projectEnvironmentStr;
     let latestDeployedReleases;
-    for(let deployment of deployments) {
-        projectEnvironmentStr = JSON.stringify({ ProjectId: getProjectId(deployment.ReleaseId), EnvironmentId: deployment.EnvironmentId });
+    for(let deployment of process.deployments) {
+        projectEnvironmentStr = JSON.stringify({ ProjectId: getProjectId(process.releases, deployment.ReleaseId), EnvironmentId: deployment.EnvironmentId });
         latestDeployedReleases = latestReleasesMap.get(projectEnvironmentStr) || [];
-        if(latestDeployedReleases) {
-            insertLatestDeployedReleaseArray(latestDeployedReleases, deployment, number);
-            latestReleasesMap.set(projectEnvironmentStr, latestDeployedReleases);
-        }
+        insertLatestDeployedReleaseArray(latestDeployedReleases, deployment, process.numberOfMostRecent);
+        latestReleasesMap.set(projectEnvironmentStr, latestDeployedReleases);
     }
-
-    console.log(latestReleasesMap);
 
     let releaseSet = new Set();
 
+    console.log(`For each valid project/environment combination, the list of ${process.numberOfMostRecent} most recently deployed releases`)
+    let logStr;
     latestReleasesMap.forEach((value, key) => {
         let projectEnvironment = JSON.parse(key);
-        if(projectEnvironmentIsIdInArray(projects, projectEnvironment.ProjectId) && projectEnvironmentIsIdInArray(environments, projectEnvironment.EnvironmentId)){
+        if(projectEnvironmentIsIdInArray(process.projects, projectEnvironment.ProjectId) && projectEnvironmentIsIdInArray(process.environments, projectEnvironment.EnvironmentId)){
+            logStr = `[${projectEnvironment.ProjectId}, ${projectEnvironment.EnvironmentId}] => [`;
             for(let release of value) {
+                logStr += `${release.ReleaseId}, `;
                 releaseSet.add(release.ReleaseId);
             }
+            logStr = `${logStr.slice(0, logStr.length - 2)}]`;
+            console.log(logStr);
         }
     });
 
     return Array.from(releaseSet);
 }
 
-function getProjectId(releaseId) {
+function getProjectId(releases, releaseId) {
     for(let release of releases) {
         if(release.Id === releaseId) return release.ProjectId;
     }
@@ -92,4 +90,4 @@ function projectEnvironmentIsIdInArray(array, id) {
     return false;
 }
 
-console.log(releaseRetention(1));
+module.exports = releaseRetention;
