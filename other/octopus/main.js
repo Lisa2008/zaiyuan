@@ -1,11 +1,12 @@
 const releaseRetention = require('./ReleaseRetention');
 
-const process = {
+const deploymentInfos = {
     deployments:  require('./Deployments.json'),
     environments: require('./Environments.json'),
     projects: require('./Projects.json'),
     releases: require('./Releases.json'),
-    numberOfMostRecent: 10
+    numberOfMostRecent: 2
 };
 
-console.log(releaseRetention(process));
+
+console.log(releaseRetention(deploymentInfos));

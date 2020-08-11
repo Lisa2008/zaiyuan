@@ -1,19 +1,19 @@
 
-function releaseRetention(process) {
-    if(!process || !process.deployments || process.deployments.constructor !== Array ||
-        !process.environments || process.environments.constructor !== Array || 
-        !process.projects || process.projects.constructor !== Array ||
-        !process.releases || process.releases.constructor !== Array ||
-        !process.numberOfMostRecent || process.numberOfMostRecent <= 0) return [];
+function releaseRetention(deploymentInfos) {
+    if(!deploymentInfos || !deploymentInfos.deployments || deploymentInfos.deployments.constructor !== Array ||
+        !deploymentInfos.environments || deploymentInfos.environments.constructor !== Array || 
+        !deploymentInfos.projects || deploymentInfos.projects.constructor !== Array ||
+        !deploymentInfos.releases || deploymentInfos.releases.constructor !== Array ||
+        !deploymentInfos.numberOfMostRecent || deploymentInfos.numberOfMostRecent <= 0) return [];
 
     let latestReleasesMap = new Map();
     let projectEnvironmentStr;
     let latestDeployedReleases;
-    for(let deployment of process.deployments) {
+    for(let deployment of deploymentInfos.deployments) {
         if(!deployment.ReleaseId || !deployment.EnvironmentId) continue;
-        projectEnvironmentStr = JSON.stringify({ ProjectId: getProjectId(process.releases, deployment.ReleaseId), EnvironmentId: deployment.EnvironmentId });
+        projectEnvironmentStr = JSON.stringify({ ProjectId: getProjectId(deploymentInfos.releases, deployment.ReleaseId), EnvironmentId: deployment.EnvironmentId });
         latestDeployedReleases = latestReleasesMap.get(projectEnvironmentStr) || [];
-        insertLatestDeployedReleaseArray(latestDeployedReleases, deployment, process.numberOfMostRecent);
+        insertLatestDeployedReleaseArray(latestDeployedReleases, deployment, deploymentInfos.numberOfMostRecent);
         latestReleasesMap.set(projectEnvironmentStr, latestDeployedReleases);
     }
 
@@ -22,13 +22,13 @@ function releaseRetention(process) {
     // Log the most recently deployed releases list for each project/evnironment combination, 
     // and the releases that should be kept are from these list.
 
-    console.log(`For each valid project/environment combination, the list of ${process.numberOfMostRecent} most recently deployed releases`)
+    console.log(`For each valid project/environment combination, the list of ${deploymentInfos.numberOfMostRecent} most recently deployed releases`)
     let logStr;
     latestReleasesMap.forEach((value, key) => {
         let projectEnvironment = JSON.parse(key);
 
         // Validate ProjectId and EnvironmentId according to projects and environments list
-        if(projectEnvironmentIsIdInArray(process.projects, projectEnvironment.ProjectId) && projectEnvironmentIsIdInArray(process.environments, projectEnvironment.EnvironmentId)){
+        if(projectEnvironmentIsIdInArray(deploymentInfos.projects, projectEnvironment.ProjectId) && projectEnvironmentIsIdInArray(deploymentInfos.environments, projectEnvironment.EnvironmentId)){
             logStr = `[${projectEnvironment.ProjectId}, ${projectEnvironment.EnvironmentId}] => [`;
             for(let release of value) {
                 logStr += `${release.ReleaseId}, `;
