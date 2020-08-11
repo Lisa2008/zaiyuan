@@ -8,5 +8,4 @@ const deploymentInfos = {
     numberOfMostRecent: 2
 };
 
-
 console.log(releaseRetention(deploymentInfos));
