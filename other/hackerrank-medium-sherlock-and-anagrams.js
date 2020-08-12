@@ -47,3 +47,29 @@ function compareStrings(str1, str2){
   else return false;
   
 }
+
+//console.log(sherlockAndAnagrams('abba')); //4
+//console.log(sherlockAndAnagrams('abcd')); //0
+//console.log(sherlockAndAnagrams('ifailuhkqq')); //3
+//console.log(sherlockAndAnagrams('kkkk')); //10
+//console.log(sherlockAndAnagrams('cdcd')); //5
+
+let testStr1 = 'ifailuhkqqhucpoltgtyovarjsnrbfpvmupwjjjfiwwhrlkpekxxnebfrwibylcvkfealgonjkzwlyfhhkefuvgndgdnbelgruel';
+
+//console.log(sherlockAndAnagrams(testStr1)); //399
+
+let testStr2 = 'gffryqktmwocejbxfidpjfgrrkpowoxwggxaknmltjcpazgtnakcfcogzatyskqjyorcftwxjrtgayvllutrjxpbzggjxbmxpnde';
+//console.log(sherlockAndAnagrams(testStr2)); //471
+
+let testStr3 = 'mqmtjwxaaaxklheghvqcyhaaegtlyntxmoluqlzvuzgkwhkkfpwarkckansgabfclzgnumdrojexnrdunivxqjzfbzsodycnsnmw';
+//console.log(sherlockAndAnagrams(testStr3)); //370
+
+
+let testStr4 = 'ofeqjnqnxwidhbuxxhfwargwkikjqwyghpsygjxyrarcoacwnhxyqlrviikfuiuotifznqmzpjrxycnqktkryutpqvbgbgthfges';
+//console.log(sherlockAndAnagrams(testStr4)); //403
+
+
+let testStr5 = 'zjekimenscyiamnwlpxytkndjsygifmqlqibxxqlauxamfviftquntvkwppxrzuncyenacfivtigvfsadtlytzymuwvpntngkyhw';
+console.log(sherlockAndAnagrams(testStr5)); //428
+
+
