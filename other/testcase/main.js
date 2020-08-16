@@ -10,47 +10,53 @@ function main(){
 console.log(main());
 
 function activityNotifications(expenditure, d) {
-    if(!expenditure || expenditure.length === 0) return 0;
-   
-    let count = 0;
-    let trail = expenditure.slice(0, d);
-   
-    trail.sort((a, b) => a - b);
-    
-    let len = expenditure.length;
-    let avg;
-    for(let i = d; i < len; i++){
-      if(d%2 === 1) avg = trail[Math.floor(d/2)] * 2;
-      else avg = (trail[d/2] + trail[d/2 -1]);
-      
-      if(expenditure[i] >= avg) count++;
-      
-      replaceEle(trail, expenditure[i - d], expenditure[i]);
-    }
-    return count;
+  if(!expenditure || expenditure.length === 0) return 0;
+ 
+  let count = 0;
+  let feq = [];
+  let len = expenditure.length;
+  let tempn;
+  let mid;
+  let odd = false;
+  if(d%2 === 1){
+    odd = true;
+    mid = Math.round(d/2);
+  }else{
+    mid = d/2;
   }
-  
-  function replaceEle(arr, removeNum, insertNum){
-    let index = 0;
-    let insterted = false;
-    let removed = false;
-    while(index < arr.length){
-      if(!removed && arr[index] === removeNum){
-        arr.splice(index, 1);
-        removed = true;
+
+  for(let i = 0; i < len; i++){
+    if(i >= d){
+      if(expenditure[i] >= getMid(feq, mid, odd))  count++;
+
+      tempn = feq[expenditure[i - d]];
+      feq[expenditure[i - d]] = tempn - 1;
+    }
+    tempn = feq[expenditure[i]] || 0;
+    feq[expenditure[i]] = tempn + 1;
+  }
+  console.log(count);
+  return count;
+ }
+
+function getMid(arr, mid, odd){
+  let len = arr.length;
+  let sum = 0;
+  let part1 = null;
+  for(let i = 0; i < len; i++){
+    sum += (arr[i] || 0);
+    if(odd){
+      if(sum >= mid){
+        return i * 2;
+      }
+      
+    }else{
+      if(part1 === null){
+        if(sum === mid) part1 = i;
+        if(sum > mid) return i*2;
       }else{
-        if(!insterted){
-          if(insertNum <= arr[index]) {
-            arr.splice(index, 0, insertNum);
-            insterted = true;
-          }
-        }
-        if(removed && insterted) break;
-        index++;
+        if(sum > mid) return part1 + i;
       }
     }
-    
-    if(!insterted) arr.push(insertNum);
-    
   }
-  
+}
